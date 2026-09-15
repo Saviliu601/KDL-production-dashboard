@@ -1,6 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  replaceAllProductionData,
+  loadProductionRecords,
+  loadSystemInfo,
+} from "@/lib/productionRepository";
+import { useEffect, useMemo, useState } from "react";
 
 import { ProductionRecord, parseExcelFile } from "@/lib/excelParser";
 
@@ -26,6 +31,25 @@ export default function Home() {
 
   const [latestUpload, setLatestUpload] =
     useState<any>(null);
+useEffect(() => {
+  async function loadData() {
+    try {
+      const latest =
+        await loadProductionRecords();
+
+      setRecords(latest);
+
+      const uploadInfo =
+        await loadSystemInfo();
+
+      setLatestUpload(uploadInfo);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadData();
+}, []);
 
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -36,9 +60,18 @@ export default function Home() {
 
     try {
       const parsed =
-        await parseExcelFile(file);
+  await parseExcelFile(file);
 
-      setRecords(parsed);
+await replaceAllProductionData(
+  file.name,
+  "Liu Xiaomeng",
+  parsed
+);
+
+const latest =
+  await loadProductionRecords();
+
+setRecords(latest);
 
       const upload = {
         fileName: file.name,
@@ -52,13 +85,13 @@ export default function Home() {
         upload,
         ...prev,
       ]);
-    } catch (err) {
-      console.error(err);
+} catch (err) {
+  console.error("UPLOAD ERROR:", err);
 
-      alert(
-        "Failed to read Sheet1 from Excel"
-      );
-    }
+  alert(
+    JSON.stringify(err, null, 2)
+  );
+}
   };
 
   const lineOptions = useMemo(
@@ -291,7 +324,8 @@ export default function Home() {
           </div>
         )}
 
-        <AlertPanel alerts={alerts} />
+
+<AlertPanel alerts={alerts} />
       </div>
     </main>
   );
