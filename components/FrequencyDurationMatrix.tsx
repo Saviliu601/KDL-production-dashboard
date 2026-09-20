@@ -42,9 +42,7 @@ const COLORS = [
 export default function FrequencyDurationMatrix({
   data,
   selectedReason,
-  onSelectReason,
 }: Props) {
-
   const top10Labels =
     [...data]
       .sort(
@@ -84,10 +82,8 @@ export default function FrequencyDurationMatrix({
                 type="number"
                 dataKey="frequency"
                 label={{
-                  value:
-                    "Frequency (Times)",
-                  position:
-                    "bottom",
+                  value: "Frequency (Times)",
+                  position: "bottom",
                 }}
               />
 
@@ -95,11 +91,9 @@ export default function FrequencyDurationMatrix({
                 type="number"
                 dataKey="duration"
                 label={{
-                  value:
-                    "Downtime (Min)",
+                  value: "Downtime (Min)",
                   angle: -90,
-                  position:
-                    "insideLeft",
+                  position: "insideLeft",
                 }}
               />
 
@@ -108,46 +102,32 @@ export default function FrequencyDurationMatrix({
                   active,
                   payload,
                 }) => {
-
                   if (
                     active &&
                     payload &&
                     payload.length
                   ) {
-
                     const item =
-                      payload[0]
-                        .payload;
+                      payload[0].payload;
 
                     return (
                       <div className="bg-white border shadow p-3">
-
                         <div className="font-bold">
-                          {
-                            item.reason
-                          }
+                          {item.reason}
                         </div>
 
                         <div>
-                          Frequency :
-                          {" "}
-                          {
-                            item.frequency
-                          }
-                          {" "}
-                          Times
+                          Frequency:{" "}
+                          {item.frequency} Times
                         </div>
 
                         <div>
-                          Downtime :
-                          {" "}
-                          {
-                            item.duration
-                          }
-                          {" "}
+                          Downtime:{" "}
+                          {item.duration.toFixed(
+                            1
+                          )}{" "}
                           Min
                         </div>
-
                       </div>
                     );
                   }
@@ -158,13 +138,6 @@ export default function FrequencyDurationMatrix({
 
               <Scatter
                 data={data}
-                onClick={(
-                  item
-                ) =>
-                  onSelectReason(
-                    item.reason
-                  )
-                }
               >
 
                 <LabelList
@@ -224,22 +197,15 @@ export default function FrequencyDurationMatrix({
             ) => (
               <div
                 key={item.reason}
-                onClick={() =>
-                  onSelectReason(
-                    item.reason
-                  )
-                }
                 className="
                   flex
                   items-center
                   gap-2
-                  cursor-pointer
                   mb-2
-                  hover:bg-gray-100
                   p-1
-                  rounded
                 "
               >
+
                 <div
                   className="w-4 h-4 rounded"
                   style={{
@@ -252,9 +218,7 @@ export default function FrequencyDurationMatrix({
                 />
 
                 <span className="text-sm">
-                  {
-                    item.reason
-                  }
+                  {item.reason}
                 </span>
 
               </div>

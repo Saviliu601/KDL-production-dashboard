@@ -18,6 +18,11 @@ interface Props {
 
   selectedReason: string | null;
 
+  mode:
+    | "TOP20"
+    | "TOP50"
+    | "ALL";
+
   onSelectReason: (
     reason: string
   ) => void;
@@ -26,28 +31,43 @@ interface Props {
 export default function FrequencyParetoChart({
   data,
   selectedReason,
+  mode,
   onSelectReason,
 }: Props) {
+
+  const displayData =
+    mode === "TOP20"
+      ? data.slice(0, 20)
+      : mode === "TOP50"
+      ? data.slice(0, 50)
+      : data;
+
   return (
     <div className="bg-white p-6 rounded-xl shadow">
+
       <h2 className="text-2xl font-bold mb-4">
         Frequency Pareto
       </h2>
 
-      <div
-        className="overflow-x-auto"
-      >
+      <div className="overflow-x-auto">
+
         <div
           style={{
             width: `${Math.max(
-              data.length * 70,
+              displayData.length *
+                70,
               1200
             )}px`,
             height: "450px",
           }}
         >
+
           <ResponsiveContainer>
-            <BarChart data={data}>
+
+            <BarChart
+              data={displayData}
+            >
+
               <XAxis
                 dataKey="reason"
                 angle={-45}
@@ -65,37 +85,43 @@ export default function FrequencyParetoChart({
                 }}
               />
 
-              <Tooltip
-                formatter={(value) => [
-                  value,
-                  "Frequency",
-                ]}
-              />
+              <Tooltip />
 
               <Bar
                 dataKey="value"
-                onClick={(data) =>
-                  onSelectReason(
-                    data.reason
-                  )
-                }
               >
-                {data.map((item) => (
-                  <Cell
-                    key={item.reason}
-                    fill={
-                      selectedReason ===
-                      item.reason
-                        ? "#dc2626"
-                        : "#2563eb"
-                    }
-                  />
-                ))}
+                {displayData.map(
+                  (
+                    item
+                  ) => (
+                    <Cell
+                      key={
+                        item.reason
+                      }
+                      fill={
+                        selectedReason ===
+                        item.reason
+                          ? "#dc2626"
+                          : "#2563eb"
+                      }
+                      onClick={() =>
+                        onSelectReason(
+                          item.reason
+                        )
+                      }
+                    />
+                  )
+                )}
               </Bar>
+
             </BarChart>
+
           </ResponsiveContainer>
+
         </div>
+
       </div>
+
     </div>
   );
 }
