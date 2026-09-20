@@ -1,331 +1,36 @@
-"use client";
-
-import {
-  replaceAllProductionData,
-  loadProductionRecords,
-  loadSystemInfo,
-} from "@/lib/productionRepository";
-import { useEffect, useMemo, useState } from "react";
-
-import { ProductionRecord, parseExcelFile } from "@/lib/excelParser";
-
-import KPISection from "@/components/KPISection";
-import FilterBar from "@/components/FilterBar";
-import TrendChart from "@/components/TrendChart";
-import AlertPanel from "@/components/AlertPanel";
-
 export default function Home() {
-  const [records, setRecords] = useState<ProductionRecord[]>([]);
-
-  const [selectedLine, setSelectedLine] =
-    useState("ALL");
-
-  const [selectedProcess, setSelectedProcess] =
-    useState("ALL");
-
-  const [selectedDate, setSelectedDate] =
-    useState("ALL");
-
-  const [uploadHistory, setUploadHistory] =
-    useState<any[]>([]);
-
-  const [latestUpload, setLatestUpload] =
-    useState<any>(null);
-useEffect(() => {
-  async function loadData() {
-    try {
-      const latest =
-        await loadProductionRecords();
-
-      setRecords(latest);
-
-      const uploadInfo =
-        await loadSystemInfo();
-
-      setLatestUpload(uploadInfo);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  loadData();
-}, []);
-
-  const handleFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    if (!e.target.files?.length) return;
-
-    const file = e.target.files[0];
-
-    try {
-      const parsed =
-  await parseExcelFile(file);
-
-await replaceAllProductionData(
-  file.name,
-  "Liu Xiaomeng",
-  parsed
-);
-
-const latest =
-  await loadProductionRecords();
-
-setRecords(latest);
-
-      const upload = {
-        fileName: file.name,
-        uploadedBy: "Liu Xiaomeng",
-        time: new Date().toLocaleString(),
-      };
-
-      setLatestUpload(upload);
-
-      setUploadHistory((prev) => [
-        upload,
-        ...prev,
-      ]);
-} catch (err) {
-  console.error("UPLOAD ERROR:", err);
-
-  alert(
-    JSON.stringify(err, null, 2)
-  );
-}
-  };
-
-  const lineOptions = useMemo(
-    () =>
-      [
-        ...new Set(
-          records.map(
-            (item) => item.line
-          )
-        ),
-      ].sort(),
-    [records]
-  );
-
-  const processOptions = useMemo(
-    () =>
-      [
-        ...new Set(
-          records.map(
-            (item) => item.process
-          )
-        ),
-      ].sort(),
-    [records]
-  );
-
-  const dateOptions = useMemo(
-    () =>
-      [
-        ...new Set(
-          records.map(
-            (item) => item.date
-          )
-        ),
-      ].sort(),
-    [records]
-  );
-
-  const filteredData = useMemo(() => {
-    return records.filter((item) => {
-      const lineMatch =
-        selectedLine === "ALL" ||
-        item.line === selectedLine;
-
-      const processMatch =
-        selectedProcess === "ALL" ||
-        item.process === selectedProcess;
-
-      const dateMatch =
-        selectedDate === "ALL" ||
-        item.date === selectedDate;
-
-      return (
-        lineMatch &&
-        processMatch &&
-        dateMatch
-      );
-    });
-  }, [
-    records,
-    selectedLine,
-    selectedProcess,
-    selectedDate,
-  ]);
-
-  const planQty = filteredData.reduce(
-    (sum, item) =>
-      sum + (item.planQty || 0),
-    0
-  );
-
-  const actualQty = filteredData.reduce(
-    (sum, item) =>
-      sum + (item.actualQty || 0),
-    0
-  );
-
-  const avgAchievement =
-    filteredData.length > 0
-      ? filteredData.reduce(
-          (sum, item) =>
-            sum +
-            (item.achievement || 0),
-          0
-        ) / filteredData.length
-      : 0;
-
-  const avgOEE =
-    filteredData.length > 0
-      ? filteredData.reduce(
-          (sum, item) =>
-            sum +
-            (item.actualOEE || 0),
-          0
-        ) / filteredData.length
-      : 0;
-
-  const alerts = filteredData.filter(
-    (item) =>
-      item.achievement < 100 ||
-      item.gap < 0
-  );
-
-  const chartData = useMemo(() => {
-    const grouped: Record<
-      string,
-      {
-        date: string;
-        plan: number;
-        actual: number;
-        achievement: number;
-        count: number;
-      }
-    > = {};
-
-    filteredData.forEach((item) => {
-      if (!grouped[item.date]) {
-        grouped[item.date] = {
-          date: item.date,
-          plan: 0,
-          actual: 0,
-          achievement: 0,
-          count: 0,
-        };
-      }
-
-      grouped[item.date].plan +=
-        item.planQty;
-
-      grouped[item.date].actual +=
-        item.actualQty;
-
-      grouped[item.date].achievement +=
-        item.achievement;
-
-      grouped[item.date].count += 1;
-    });
-
-    return Object.values(grouped)
-      .map((item) => ({
-        ...item,
-        achievement:
-          item.count > 0
-            ? item.achievement /
-              item.count
-            : 0,
-      }))
-      .sort(
-        (a, b) =>
-          new Date(
-            a.date
-          ).getTime() -
-          new Date(
-            b.date
-          ).getTime()
-      );
-  }, [filteredData]);
-
   return (
-    <main className="min-h-screen bg-gray-100">
-      <div className="bg-blue-800 text-white p-5">
-        <h1 className="text-3xl font-bold">
-          KDL Dashboard
-        </h1>
-      </div>
+    <main className="min-h-screen bg-gray-100 p-10">
+      <h1 className="text-4xl font-bold mb-6">
+        KDL Shutdown Dashboard
+      </h1>
 
-      <div className="p-8">
-        <KPISection
-          planQty={planQty}
-          actualQty={actualQty}
-          achievement={avgAchievement}
-          avgOEE={avgOEE}
-        />
+      <p className="text-lg text-gray-600 mb-10">
+        Shutdown Intelligence Portal
+      </p>
 
-        <FilterBar
-          selectedDate={selectedDate}
-          selectedLine={selectedLine}
-          selectedProcess={selectedProcess}
-          dates={dateOptions}
-          lines={lineOptions}
-          processes={processOptions}
-          onDateChange={
-            setSelectedDate
-          }
-          onLineChange={
-            setSelectedLine
-          }
-          onProcessChange={
-            setSelectedProcess
-          }
-        />
+      <div className="grid grid-cols-2 gap-6">
 
-        <TrendChart
-          chartData={chartData}
-        />
-
-        <div className="bg-white p-6 rounded-xl shadow mb-6">
-          <h2 className="text-xl font-bold mb-4">
-            Upload Excel
-          </h2>
-
-          <input
-            type="file"
-            accept=".xlsx,.xls"
-            onChange={
-              handleFileUpload
-            }
-          />
+        <div className="bg-white rounded-xl p-6 shadow">
+          <h2 className="font-bold">Total Shutdown Events</h2>
+          <p className="text-3xl mt-3">0</p>
         </div>
 
-        {latestUpload && (
-          <div className="bg-white p-6 rounded-xl shadow mb-6">
-            <h2 className="text-xl font-bold mb-4">
-              Latest Upload
-            </h2>
+        <div className="bg-white rounded-xl p-6 shadow">
+          <h2 className="font-bold">Total Downtime</h2>
+          <p className="text-3xl mt-3">0 min</p>
+        </div>
 
-            <div>
-              <p>
-                <b>File:</b>{" "}
-                {
-                  latestUpload.fileName
-                }
-              </p>
+        <div className="bg-white rounded-xl p-6 shadow">
+          <h2 className="font-bold">Top Reason (Frequency)</h2>
+          <p className="mt-3">-</p>
+        </div>
 
-              <p>
-                <b>Time:</b>{" "}
-                {latestUpload.time}
-              </p>
-            </div>
-          </div>
-        )}
+        <div className="bg-white rounded-xl p-6 shadow">
+          <h2 className="font-bold">Top Reason (Duration)</h2>
+          <p className="mt-3">-</p>
+        </div>
 
-
-<AlertPanel alerts={alerts} />
       </div>
     </main>
   );
