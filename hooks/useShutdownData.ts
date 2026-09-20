@@ -9,6 +9,7 @@ import {
 import {
   replaceAllShutdownData,
   loadShutdownRecords,
+  getLastUploadInfo,
 } from "@/lib/shutdownRepository";
 
 export function useShutdownData() {
@@ -18,6 +19,16 @@ export function useShutdownData() {
 
   const [loading, setLoading] =
     useState(false);
+
+  const [
+    lastUploadTime,
+    setLastUploadTime,
+  ] = useState("");
+
+  const [
+    lastFileName,
+    setLastFileName,
+  ] = useState("");
 
   const [
     selectedReason,
@@ -63,6 +74,17 @@ export function useShutdownData() {
 
     setRecords(data);
 
+    const uploadInfo =
+      await getLastUploadInfo();
+
+    setLastUploadTime(
+      uploadInfo.lastUploadTime || ""
+    );
+
+    setLastFileName(
+      uploadInfo.lastFileName || ""
+    );
+
   }
 
   useEffect(() => {
@@ -85,7 +107,8 @@ export function useShutdownData() {
         );
 
       await replaceAllShutdownData(
-        parsed
+        parsed,
+        file.name
       );
 
       await refreshData();
@@ -274,7 +297,9 @@ export function useShutdownData() {
           Number(a.value)
       );
 
-  if (paretoMode === "TOP20") {
+  if (
+    paretoMode === "TOP20"
+  ) {
 
     frequencyPareto =
       frequencyPareto.slice(
@@ -290,7 +315,9 @@ export function useShutdownData() {
 
   }
 
-  if (paretoMode === "TOP50") {
+  if (
+    paretoMode === "TOP50"
+  ) {
 
     frequencyPareto =
       frequencyPareto.slice(
@@ -379,6 +406,9 @@ export function useShutdownData() {
   return {
 
     loading,
+
+    lastUploadTime,
+    lastFileName,
 
     totalEvents,
     totalDowntime,

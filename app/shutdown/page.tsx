@@ -49,6 +49,9 @@ export default function ShutdownPage() {
     lineTypes,
     processes,
 
+    lastUploadTime,
+    lastFileName,
+
     uploadShutdownExcel,
   } = useShutdownData();
 
@@ -132,6 +135,8 @@ export default function ShutdownPage() {
 
       <ShutdownUploadSection
         onUpload={uploadShutdownExcel}
+        lastUploadTime={lastUploadTime}
+        lastFileName={lastFileName}
       />
 
       <ShutdownDateFilter
@@ -153,12 +158,8 @@ export default function ShutdownPage() {
       <ShutdownKPISection
         totalEvents={totalEvents}
         totalDowntime={totalDowntime}
-        topReasonFrequency={
-          topReasonFrequency
-        }
-        topReasonDuration={
-          topReasonDuration
-        }
+        topReasonFrequency={topReasonFrequency}
+        topReasonDuration={topReasonDuration}
       />
 
       <div className="bg-white p-4 rounded-xl shadow mt-6 mb-6">
@@ -178,56 +179,46 @@ export default function ShutdownPage() {
 
         <FrequencyParetoChart
           data={frequencyPareto}
-          selectedReason={
-            selectedReason
-          }
-          onSelectReason={
-            setSelectedReason
-          }
+          selectedReason={selectedReason}
+          onSelectReason={setSelectedReason}
           mode={paretoMode}
         />
 
         <DurationParetoChart
           data={durationPareto}
-          selectedReason={
-            selectedReason
-          }
-          onSelectReason={
-            setSelectedReason
-          }
+          selectedReason={selectedReason}
+          onSelectReason={setSelectedReason}
           mode={paretoMode}
         />
 
       </div>
 
       <div className="mt-6">
+
         <FrequencyDurationMatrix
           data={matrixData}
-          selectedReason={
-            selectedReason
-          }
-          onSelectReason={
-            setSelectedReason
-          }
+          selectedReason={selectedReason}
+          onSelectReason={setSelectedReason}
         />
+
       </div>
 
       <div className="mt-6">
+
         <ShutdownTrendChart
           data={trendData}
         />
+
       </div>
 
       <div className="mt-6">
+
         <ShutdownDetailTable
           data={detailTableData}
-          selectedReason={
-            selectedReason
-          }
-          onSelectReason={
-            setSelectedReason
-          }
+          selectedReason={selectedReason}
+          onSelectReason={setSelectedReason}
         />
+
       </div>
 
     </main>
