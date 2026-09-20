@@ -2,12 +2,11 @@
 
 import ShutdownKPISection from "@/components/ShutdownKPISection";
 import ShutdownUploadSection from "@/components/ShutdownUploadSection";
-import ShutdownFilterBar from "@/components/ShutdownFilterBar";
-import ShutdownDateFilter from "@/components/ShutdownDateFilter";
-import ParetoModeSelector from "@/components/ParetoModeSelector";
+import ShutdownFilterPanel from "@/components/ShutdownFilterPanel";
 
 import FrequencyParetoChart from "@/components/FrequencyParetoChart";
 import DurationParetoChart from "@/components/DurationParetoChart";
+
 import FrequencyDurationMatrix from "@/components/FrequencyDurationMatrix";
 import ShutdownTrendChart from "@/components/ShutdownTrendChart";
 import ShutdownDetailTable from "@/components/ShutdownDetailTable";
@@ -69,7 +68,8 @@ export default function ShutdownPage() {
       downtime: item.duration,
       avgDowntime:
         item.frequency > 0
-          ? item.duration / item.frequency
+          ? item.duration /
+            item.frequency
           : 0,
     }))
     .sort(
@@ -83,6 +83,7 @@ export default function ShutdownPage() {
       <div className="flex justify-between items-center mb-4">
 
         <div>
+
           <h1 className="text-4xl font-bold mb-2">
             Shutdown Analysis
           </h1>
@@ -90,6 +91,7 @@ export default function ShutdownPage() {
           <p className="text-gray-500">
             KDL Shutdown Intelligence Portal
           </p>
+
         </div>
 
         <button
@@ -139,18 +141,19 @@ export default function ShutdownPage() {
         lastFileName={lastFileName}
       />
 
-      <ShutdownDateFilter
+      <ShutdownFilterPanel
         startDate={startDate}
         endDate={endDate}
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
-      />
 
-      <ShutdownFilterBar
         selectedLineType={selectedLineType}
         selectedProcess={selectedProcess}
+
         lineTypes={lineTypes}
         processes={processes}
+
+        onStartDateChange={setStartDate}
+        onEndDateChange={setEndDate}
+
         onLineTypeChange={setSelectedLineType}
         onProcessChange={setSelectedProcess}
       />
@@ -162,26 +165,14 @@ export default function ShutdownPage() {
         topReasonDuration={topReasonDuration}
       />
 
-      <div className="bg-white p-4 rounded-xl shadow mt-6 mb-6">
-
-        <div className="font-bold mb-2">
-          Pareto View Mode
-        </div>
-
-        <ParetoModeSelector
-          mode={paretoMode}
-          onChange={setParetoMode}
-        />
-
-      </div>
-
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 mt-6">
 
         <FrequencyParetoChart
           data={frequencyPareto}
           selectedReason={selectedReason}
           onSelectReason={setSelectedReason}
           mode={paretoMode}
+          onModeChange={setParetoMode}
         />
 
         <DurationParetoChart
@@ -189,6 +180,7 @@ export default function ShutdownPage() {
           selectedReason={selectedReason}
           onSelectReason={setSelectedReason}
           mode={paretoMode}
+          onModeChange={setParetoMode}
         />
 
       </div>

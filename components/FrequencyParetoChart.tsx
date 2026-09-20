@@ -2,11 +2,14 @@
 
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  ComposedChart,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
+  Bar,
+  Line,
   Cell,
 } from "recharts";
 
@@ -23,6 +26,13 @@ interface Props {
     | "TOP50"
     | "ALL";
 
+  onModeChange: (
+    mode:
+      | "TOP20"
+      | "TOP50"
+      | "ALL"
+  ) => void;
+
   onSelectReason: (
     reason: string
   ) => void;
@@ -32,29 +42,82 @@ export default function FrequencyParetoChart({
   data,
   selectedReason,
   mode,
+  onModeChange,
   onSelectReason,
 }: Props) {
 
-  const displayData =
-    mode === "TOP20"
-      ? data.slice(0, 20)
-      : mode === "TOP50"
-      ? data.slice(0, 50)
-      : data;
+  const total =
+    data.reduce(
+      (sum, item) =>
+        sum + item.value,
+      0
+    );
+
+  let running = 0;
+
+  const chartData =
+    data.map((item) => {
+
+      running += item.value;
+
+      return {
+        ...item,
+
+        cumulative:
+          total > 0
+            ? (
+                running /
+                total
+              ) *
+              100
+            : 0,
+      };
+
+    });
 
   return (
     <div className="bg-white p-6 rounded-xl shadow">
 
-      <h2 className="text-2xl font-bold mb-4">
-        Frequency Pareto
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+
+        <h2 className="text-2xl font-bold">
+          Frequency Pareto
+        </h2>
+
+        <select
+          value={mode}
+          onChange={(e) =>
+            onModeChange(
+              e.target.value as
+                | "TOP20"
+                | "TOP50"
+                | "ALL"
+            )
+          }
+          className="border rounded px-2 py-1"
+        >
+          <option value="TOP20">
+            TOP20
+          </option>
+
+          <option value="TOP50">
+            TOP50
+          </option>
+
+          <option value="ALL">
+            ALL
+          </option>
+
+        </select>
+
+      </div>
 
       <div className="overflow-x-auto">
 
         <div
           style={{
             width: `${Math.max(
-              displayData.length *
+              chartData.length *
                 70,
               1200
             )}px`,
@@ -64,9 +127,11 @@ export default function FrequencyParetoChart({
 
           <ResponsiveContainer>
 
-            <BarChart
-              data={displayData}
+            <ComposedChart
+              data={chartData}
             >
+
+              <CartesianGrid strokeDasharray="3 3" />
 
               <XAxis
                 dataKey="reason"
@@ -76,28 +141,38 @@ export default function FrequencyParetoChart({
               />
 
               <YAxis
+                yAxisId="count"
                 label={{
                   value:
-                    "Frequency (Times)",
+                    "Frequency",
                   angle: -90,
                   position:
                     "insideLeft",
                 }}
               />
 
+              <YAxis
+                yAxisId="percent"
+                orientation="right"
+                domain={[0, 100]}
+                tickFormatter={(v) =>
+                  `${v}%`
+                }
+              />
+
               <Tooltip />
 
+              <Legend />
+
               <Bar
+                yAxisId="count"
                 dataKey="value"
+                name="Frequency"
               >
-                {displayData.map(
-                  (
-                    item
-                  ) => (
+                {chartData.map(
+                  (item) => (
                     <Cell
-                      key={
-                        item.reason
-                      }
+                      key={item.reason}
                       fill={
                         selectedReason ===
                         item.reason
@@ -114,7 +189,16 @@ export default function FrequencyParetoChart({
                 )}
               </Bar>
 
-            </BarChart>
+              <Line
+                yAxisId="percent"
+                dataKey="cumulative"
+                name="Cumulative %"
+                stroke="#f59e0b"
+                strokeWidth={3}
+                dot
+              />
+
+            </ComposedChart>
 
           </ResponsiveContainer>
 
