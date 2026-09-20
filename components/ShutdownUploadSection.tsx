@@ -62,7 +62,7 @@ export default function ShutdownUploadSection({
 
           <div>
             <strong>
-              Last Upload Time:
+              Current Data Updated:
             </strong>
             {" "}
             {lastUploadTime
@@ -74,7 +74,7 @@ export default function ShutdownUploadSection({
 
           <div className="mt-1">
             <strong>
-              Last File:
+              Current Data Source:
             </strong>
             {" "}
             {lastFileName
