@@ -1,6 +1,6 @@
 interface ShutdownUploadSectionProps {
   onUpload: (
-    file: File
+    files: File[]
   ) => Promise<boolean>;
 
   lastUploadTime?: string;
@@ -13,45 +13,39 @@ export default function ShutdownUploadSection({
   lastUploadTime,
   lastFileName,
 }: ShutdownUploadSectionProps) {
-
   async function handleChange(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
+    const files = Array.from(
+      e.target.files || []
+    );
 
-    const file =
-      e.target.files?.[0];
-
-    if (!file) return;
+    if (!files.length) return;
 
     const success =
-      await onUpload(file);
+      await onUpload(files);
 
     if (success) {
-
       alert(
         "Shutdown Excel Uploaded"
       );
-
     } else {
-
       alert(
         "Upload Failed"
       );
-
     }
-
   }
 
   return (
-
     <div className="bg-white p-6 rounded-xl shadow mb-6">
 
       <h2 className="text-2xl font-bold mb-4">
-        Upload Shutdown Excel
+        Upload Shutdown Excel Files
       </h2>
 
       <input
         type="file"
+        multiple
         accept=".xlsx,.xls"
         onChange={handleChange}
       />
@@ -63,27 +57,14 @@ export default function ShutdownUploadSection({
           <div>
             <strong>
               Current Data Updated:
-            </strong>
-            {" "}
-            {lastUploadTime
-  ? new Date(
-      lastUploadTime
-    ).toLocaleString(
-      "zh-CN",
-      {
-        timeZone:
-          "Asia/Shanghai",
-        hour12: false,
-      }
-    )
-  : "N/A"}
+            </strong>{" "}
+            {lastUploadTime || "N/A"}
           </div>
 
           <div className="mt-1">
             <strong>
               Current Data Source:
-            </strong>
-            {" "}
+            </strong>{" "}
             {lastFileName
               ? lastFileName
               : "N/A"}
@@ -94,6 +75,5 @@ export default function ShutdownUploadSection({
       </div>
 
     </div>
-
   );
 }

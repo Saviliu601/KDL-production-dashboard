@@ -1,6 +1,8 @@
 import * as XLSX from "xlsx";
 
 export interface ShutdownRecord {
+  production_line: string;
+
   line_type: string;
 
   month: string;
@@ -80,9 +82,45 @@ function toDateString(
   return String(value);
 }
 
+function getProductionLineFromFileName(
+  fileName: string
+): string {
+
+  const match =
+    fileName.match(
+      /line\s*(\d+)/i
+    );
+
+  if (!match) {
+
+    throw new Error(
+      `
+Cannot detect Production Line.
+
+File name must contain:
+
+Line1
+Line2
+Line3
+...
+
+Examples:
+
+0914-Line1.xlsx
+46C0 Line1.xlsx
+Copy of Line1.xlsx
+`
+    );
+
+  }
+
+  return `Line${match[1]}`;
+}
+
 function parseSheet(
   workbook: XLSX.WorkBook,
   sheetName: string,
+  productionLine: string,
   lineType: string
 ): ShutdownRecord[] {
 
@@ -110,6 +148,9 @@ function parseSheet(
     )
     .map(
       (row: any[]) => ({
+
+        production_line:
+          productionLine,
 
         line_type:
           lineType,
@@ -154,6 +195,11 @@ export async function parseShutdownFile(
   file: File
 ): Promise<ShutdownRecord[]> {
 
+  const productionLine =
+    getProductionLineFromFileName(
+      file.name
+    );
+
   const buffer =
     await file.arrayBuffer();
 
@@ -169,6 +215,7 @@ export async function parseShutdownFile(
     parseSheet(
       workbook,
       "拉伸-柏拉图停机明细",
+      productionLine,
       "Stretching"
     );
 
@@ -176,6 +223,7 @@ export async function parseShutdownFile(
     parseSheet(
       workbook,
       "自动线-柏拉图停机明细",
+      productionLine,
       "Auto Line"
     );
 

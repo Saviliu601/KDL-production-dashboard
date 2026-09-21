@@ -18,14 +18,32 @@ export async function saveShutdownRecords(
   if (!records.length) return;
 
   const rows = records.map((item) => ({
-    line_type: item.line_type,
-    month: item.month,
-    week: item.week,
-    shutdown_date: item.shutdown_date,
-    process: item.process,
-    reason: item.reason,
-    downtime_min: item.downtime_min,
-    event_count: item.event_count,
+    production_line:
+      item.production_line,
+
+    line_type:
+      item.line_type,
+
+    month:
+      item.month,
+
+    week:
+      item.week,
+
+    shutdown_date:
+      item.shutdown_date,
+
+    process:
+      item.process,
+
+    reason:
+      item.reason,
+
+    downtime_min:
+      item.downtime_min,
+
+    event_count:
+      item.event_count,
   }));
 
   const { error } = await supabase

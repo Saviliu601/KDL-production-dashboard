@@ -42,7 +42,10 @@ export function useShutdownData() {
     selectedLineType,
     setSelectedLineType,
   ] = useState("ALL");
-
+const [
+  selectedProductionLine,
+  setSelectedProductionLine,
+] = useState("ALL");
   const [
     selectedProcess,
     setSelectedProcess,
@@ -93,40 +96,58 @@ export function useShutdownData() {
 
   }, []);
 
-  async function uploadShutdownExcel(
-    file: File
-  ) {
+ async function uploadShutdownExcel(
+  files: File[]
+) {
 
-    try {
+  try {
 
-      setLoading(true);
+    setLoading(true);
+
+    let allRecords: any[] = [];
+
+    for (const file of files) {
 
       const parsed =
         await parseShutdownFile(
           file
         );
 
-      await replaceAllShutdownData(
-        parsed,
-        file.name
-      );
-
-      await refreshData();
-
-      return true;
-
-    } catch (error) {
-
-      console.error(error);
-
-      return false;
-
-    } finally {
-
-      setLoading(false);
+      allRecords = [
+        ...allRecords,
+        ...parsed,
+      ];
 
     }
+
+    const fileNames =
+      files
+        .map(
+          (f) => f.name
+        )
+        .join(", ");
+
+    await replaceAllShutdownData(
+      allRecords,
+      fileNames
+    );
+
+    await refreshData();
+
+    return true;
+
+  } catch (error) {
+
+    console.error(error);
+
+    return false;
+
+  } finally {
+
+    setLoading(false);
+
   }
+}
 
   const lineTypes = [
     ...new Set(
