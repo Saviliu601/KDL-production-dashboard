@@ -66,10 +66,17 @@ export default function ShutdownUploadSection({
             </strong>
             {" "}
             {lastUploadTime
-              ? new Date(
-                  lastUploadTime
-                ).toLocaleString()
-              : "N/A"}
+  ? new Date(
+      lastUploadTime
+    ).toLocaleString(
+      "zh-CN",
+      {
+        timeZone:
+          "Asia/Shanghai",
+        hour12: false,
+      }
+    )
+  : "N/A"}
           </div>
 
           <div className="mt-1">

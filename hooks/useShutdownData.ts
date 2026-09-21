@@ -207,7 +207,6 @@ export function useShutdownData() {
             selectedReason
         )
       : filteredRecords;
-
   const totalEvents =
     displayRecords.length;
 
