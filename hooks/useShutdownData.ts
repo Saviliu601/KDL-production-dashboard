@@ -39,13 +39,15 @@ export function useShutdownData() {
     );
 
   const [
+    selectedProductionLine,
+    setSelectedProductionLine,
+  ] = useState("ALL");
+
+  const [
     selectedLineType,
     setSelectedLineType,
   ] = useState("ALL");
-const [
-  selectedProductionLine,
-  setSelectedProductionLine,
-] = useState("ALL");
+
   const [
     selectedProcess,
     setSelectedProcess,
@@ -91,84 +93,111 @@ const [
   }
 
   useEffect(() => {
-
     refreshData();
-
   }, []);
 
- async function uploadShutdownExcel(
-  files: File[]
-) {
+  async function uploadShutdownExcel(
+    files: File[]
+  ) {
 
-  try {
+    try {
 
-    setLoading(true);
+      setLoading(true);
 
-    let allRecords: any[] = [];
+      let allRecords: any[] = [];
 
-    for (const file of files) {
+      for (const file of files) {
 
-      const parsed =
-        await parseShutdownFile(
-          file
-        );
+        const parsed =
+          await parseShutdownFile(
+            file
+          );
 
-      allRecords = [
-        ...allRecords,
-        ...parsed,
-      ];
+        allRecords = [
+          ...allRecords,
+          ...parsed,
+        ];
+
+      }
+
+      const fileNames =
+        files
+          .map(
+            (f) => f.name
+          )
+          .join(", ");
+
+      await replaceAllShutdownData(
+        allRecords,
+        fileNames
+      );
+
+      await refreshData();
+
+      return true;
+
+    } catch (error) {
+
+      console.error(error);
+
+      return false;
+
+    } finally {
+
+      setLoading(false);
 
     }
-
-    const fileNames =
-      files
-        .map(
-          (f) => f.name
-        )
-        .join(", ");
-
-    await replaceAllShutdownData(
-      allRecords,
-      fileNames
-    );
-
-    await refreshData();
-
-    return true;
-
-  } catch (error) {
-
-    console.error(error);
-
-    return false;
-
-  } finally {
-
-    setLoading(false);
-
   }
-}
+
+  const productionLines = [
+    ...new Set(
+      records
+        .map(
+          (item) =>
+            item.production_line
+        )
+        .filter(Boolean)
+    ),
+  ];
 
   const lineTypes = [
     ...new Set(
-      records.map(
-        (item) =>
-          item.line_type
-      )
+      records
+        .map(
+          (item) =>
+            item.line_type
+        )
+        .filter(Boolean)
     ),
   ];
 
   const processes = [
     ...new Set(
-      records.map(
-        (item) =>
-          item.process
-      )
+      records
+        .map(
+          (item) =>
+            item.process
+        )
+        .filter(Boolean)
     ),
   ];
 
   let filteredRecords =
     [...records];
+
+  if (
+    selectedProductionLine !==
+    "ALL"
+  ) {
+
+    filteredRecords =
+      filteredRecords.filter(
+        (item) =>
+          item.production_line ===
+          selectedProductionLine
+      );
+
+  }
 
   if (
     selectedLineType !== "ALL"
@@ -228,6 +257,7 @@ const [
             selectedReason
         )
       : filteredRecords;
+
   const totalEvents =
     displayRecords.length;
 
@@ -244,15 +274,16 @@ const [
   const reasonFrequencyMap =
     filteredRecords.reduce(
       (
-        acc:
-          Record<string, number>,
+        acc: Record<
+          string,
+          number
+        >,
         item
       ) => {
 
         acc[item.reason] =
           (
-            acc[item.reason] ||
-            0
+            acc[item.reason] || 0
           ) + 1;
 
         return acc;
@@ -264,19 +295,19 @@ const [
   const reasonDurationMap =
     filteredRecords.reduce(
       (
-        acc:
-          Record<string, number>,
+        acc: Record<
+          string,
+          number
+        >,
         item
       ) => {
 
         acc[item.reason] =
           (
-            acc[item.reason] ||
-            0
+            acc[item.reason] || 0
           ) +
           Number(
-            item.downtime_min ||
-              0
+            item.downtime_min || 0
           );
 
         return acc;
@@ -359,12 +390,10 @@ const [
     )
       .map((reason) => ({
         reason,
-
         frequency:
           reasonFrequencyMap[
             reason
           ] || 0,
-
         duration:
           reasonDurationMap[
             reason
@@ -453,6 +482,9 @@ const [
     selectedReason,
     setSelectedReason,
 
+    selectedProductionLine,
+    setSelectedProductionLine,
+
     selectedLineType,
     setSelectedLineType,
 
@@ -464,6 +496,8 @@ const [
 
     endDate,
     setEndDate,
+
+    productionLines,
 
     lineTypes,
     processes,

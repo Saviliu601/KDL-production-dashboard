@@ -33,6 +33,9 @@ export default function ShutdownPage() {
     selectedReason,
     setSelectedReason,
 
+    selectedProductionLine,
+    setSelectedProductionLine,
+
     selectedLineType,
     setSelectedLineType,
 
@@ -45,6 +48,7 @@ export default function ShutdownPage() {
     endDate,
     setEndDate,
 
+    productionLines,
     lineTypes,
     processes,
 
@@ -97,9 +101,21 @@ export default function ShutdownPage() {
         <button
           onClick={() => {
             setSelectedReason(null);
-            setSelectedLineType("ALL");
-            setSelectedProcess("ALL");
+
+            setSelectedProductionLine(
+              "ALL"
+            );
+
+            setSelectedLineType(
+              "ALL"
+            );
+
+            setSelectedProcess(
+              "ALL"
+            );
+
             setStartDate("");
+
             setEndDate("");
           }}
           className="
@@ -117,6 +133,7 @@ export default function ShutdownPage() {
       </div>
 
       {selectedReason && (
+
         <div
           className="
             bg-yellow-100
@@ -133,6 +150,7 @@ export default function ShutdownPage() {
             {selectedReason}
           </strong>
         </div>
+
       )}
 
       <ShutdownUploadSection
@@ -145,42 +163,86 @@ export default function ShutdownPage() {
         startDate={startDate}
         endDate={endDate}
 
-        selectedLineType={selectedLineType}
-        selectedProcess={selectedProcess}
+        selectedProductionLine={
+          selectedProductionLine
+        }
+
+        selectedLineType={
+          selectedLineType
+        }
+
+        selectedProcess={
+          selectedProcess
+        }
+
+        productionLines={
+          productionLines
+        }
 
         lineTypes={lineTypes}
+
         processes={processes}
 
-        onStartDateChange={setStartDate}
-        onEndDateChange={setEndDate}
+        onStartDateChange={
+          setStartDate
+        }
 
-        onLineTypeChange={setSelectedLineType}
-        onProcessChange={setSelectedProcess}
+        onEndDateChange={
+          setEndDate
+        }
+
+        onProductionLineChange={
+          setSelectedProductionLine
+        }
+
+        onLineTypeChange={
+          setSelectedLineType
+        }
+
+        onProcessChange={
+          setSelectedProcess
+        }
       />
 
       <ShutdownKPISection
         totalEvents={totalEvents}
         totalDowntime={totalDowntime}
-        topReasonFrequency={topReasonFrequency}
-        topReasonDuration={topReasonDuration}
+        topReasonFrequency={
+          topReasonFrequency
+        }
+        topReasonDuration={
+          topReasonDuration
+        }
       />
 
       <div className="grid grid-cols-2 gap-6 mt-6">
 
         <FrequencyParetoChart
           data={frequencyPareto}
-          selectedReason={selectedReason}
-          onSelectReason={setSelectedReason}
+          selectedReason={
+            selectedReason
+          }
+          onSelectReason={
+            setSelectedReason
+          }
           mode={paretoMode}
-          onModeChange={setParetoMode}
+          onModeChange={
+            setParetoMode
+          }
         />
 
         <DurationParetoChart
           data={durationPareto}
-          selectedReason={selectedReason}
-          onSelectReason={setSelectedReason}
+          selectedReason={
+            selectedReason
+          }
+          onSelectReason={
+            setSelectedReason
+          }
           mode={paretoMode}
-          onModeChange={setParetoMode}
+          onModeChange={
+            setParetoMode
+          }
         />
 
       </div>
@@ -189,8 +251,12 @@ export default function ShutdownPage() {
 
         <FrequencyDurationMatrix
           data={matrixData}
-          selectedReason={selectedReason}
-          onSelectReason={setSelectedReason}
+          selectedReason={
+            selectedReason
+          }
+          onSelectReason={
+            setSelectedReason
+          }
         />
 
       </div>
@@ -207,8 +273,12 @@ export default function ShutdownPage() {
 
         <ShutdownDetailTable
           data={detailTableData}
-          selectedReason={selectedReason}
-          onSelectReason={setSelectedReason}
+          selectedReason={
+            selectedReason
+          }
+          onSelectReason={
+            setSelectedReason
+          }
         />
 
       </div>

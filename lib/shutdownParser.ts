@@ -43,7 +43,6 @@ function toNumber(
 function toDateString(
   value: unknown
 ): string {
-
   if (
     value === null ||
     value === undefined ||
@@ -55,7 +54,6 @@ function toDateString(
   if (
     typeof value === "number"
   ) {
-
     const excelDate =
       XLSX.SSF.parse_date_code(
         value
@@ -86,35 +84,55 @@ function getProductionLineFromFileName(
   fileName: string
 ): string {
 
-  const match =
+  // 支持:
+  // Line1.xlsx
+  // line1.xlsx
+  // LINE1.xlsx
+  // 0914-Line1.xlsx
+  // Copy of Line1.xlsx
+
+  const englishMatch =
     fileName.match(
       /line\s*(\d+)/i
     );
 
-  if (!match) {
+  if (englishMatch) {
 
-    throw new Error(
-      `
-Cannot detect Production Line.
-
-File name must contain:
-
-Line1
-Line2
-Line3
-...
-
-Examples:
-
-0914-Line1.xlsx
-46C0 Line1.xlsx
-Copy of Line1.xlsx
-`
-    );
+    return `Line${englishMatch[1]}`;
 
   }
 
-  return `Line${match[1]}`;
+  // 支持:
+  // 1线.xlsx
+  // 3线爬坡表.xlsx
+  // 46C0 4线爬坡表.xlsx
+
+  const chineseMatch =
+    fileName.match(
+      /(\d+)\s*线/
+    );
+
+  if (chineseMatch) {
+
+    return `Line${chineseMatch[1]}`;
+
+  }
+
+  throw new Error(
+`
+Cannot detect Production Line.
+
+Supported examples:
+
+Line1.xlsx
+Line2.xlsx
+
+0914-Line3.xlsx
+
+46C0 3线爬坡表.xlsx
+46C0 4线爬坡表.xlsx
+`
+  );
 }
 
 function parseSheet(
@@ -196,9 +214,16 @@ export async function parseShutdownFile(
 ): Promise<ShutdownRecord[]> {
 
   const productionLine =
-    getProductionLineFromFileName(
-      file.name
-    );
+  getProductionLineFromFileName(
+    file.name
+  );
+
+console.log(
+  "FILE:",
+  file.name,
+  "LINE:",
+  productionLine
+);
 
   const buffer =
     await file.arrayBuffer();
